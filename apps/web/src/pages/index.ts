@@ -1,0 +1,7 @@
+export { Home } from './Home'
+export { ClassView } from './ClassView'
+export { AddAssignment } from './AddAssignment'
+export { Profile } from './Profile'
+export { CreateClass } from './CreateClass'
+export { JoinClass } from './JoinClass'
+export { ClassSettings } from './ClassSettings'

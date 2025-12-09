@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// Пользователи
+model User {
+  id         String   @id @default(uuid())
+  telegramId BigInt?  @unique @map("telegram_id")
+  name       String
+  avatarUrl  String?  @map("avatar_url")
+  role       String   @default("student")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Связи
+  createdClasses  Class[]        @relation("ClassCreator")
+  memberships     ClassMember[]  @relation("MemberUser")
+  linkedAsStudent ClassMember[]  @relation("LinkedStudent")
+  assignments     Assignment[]   @relation("AssignmentCreator")
+  completions     Completion[]
+  reminders       Reminder[]
+
+  @@map("users")
+}
+
+// Классы/группы
+model Class {
+  id         String   @id @default(uuid())
+  name       String
+  schoolName String?  @map("school_name")
+  inviteCode String   @unique @map("invite_code")
+  createdBy  String   @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Связи
+  creator     User          @relation("ClassCreator", fields: [createdBy], references: [id])
+  members     ClassMember[]
+  subjects    Subject[]
+  assignments Assignment[]
+  reminders   Reminder[]
+
+  @@map("classes")
+}
+
+// Участники класса
+model ClassMember {
+  id              String   @id @default(uuid())
+  classId         String   @map("class_id")
+  userId          String   @map("user_id")
+  role            String   @default("member")
+  linkedStudentId String?  @map("linked_student_id")
+  joinedAt        DateTime @default(now()) @map("joined_at")
+
+  // Связи
+  class         Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  user          User  @relation("MemberUser", fields: [userId], references: [id], onDelete: Cascade)
+  linkedStudent User? @relation("LinkedStudent", fields: [linkedStudentId], references: [id])
+
+  @@unique([classId, userId])
+  @@map("class_members")
+}
+
+// Предметы
+model Subject {
+  id        String @id @default(uuid())
+  classId   String @map("class_id")
+  name      String
+  emoji     String @default("📚")
+  color     String @default("#3B82F6")
+  sortOrder Int    @default(0) @map("sort_order")
+
+  // Связи
+  class       Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  assignments Assignment[]
+
+  @@map("subjects")
+}
+
+// Домашние задания
+model Assignment {
+  id          String   @id @default(uuid())
+  classId     String   @map("class_id")
+  subjectId   String   @map("subject_id")
+  dueDate     DateTime @map("due_date")
+  content     String
+  attachments String   @default("[]")
+  createdBy   String   @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Связи
+  class       Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject     Subject      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  creator     User         @relation("AssignmentCreator", fields: [createdBy], references: [id])
+  completions Completion[]
+
+  @@map("assignments")
+}
+
+// Статус выполнения
+model Completion {
+  id           String    @id @default(uuid())
+  assignmentId String    @map("assignment_id")
+  userId       String    @map("user_id")
+  completed    Boolean   @default(false)
+  completedAt  DateTime? @map("completed_at")
+
+  // Связи
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, userId])
+  @@map("completions")
+}
+
+// Напоминания
+model Reminder {
+  id      String  @id @default(uuid())
+  userId  String  @map("user_id")
+  classId String? @map("class_id")
+  time    String
+  days    String  @default("[1,2,3,4,5]")
+  enabled Boolean @default(true)
+
+  // Связи
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  class Class? @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
+}
