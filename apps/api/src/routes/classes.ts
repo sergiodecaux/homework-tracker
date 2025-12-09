@@ -5,13 +5,11 @@ import { z } from 'zod'
 const router = Router()
 const prisma = new PrismaClient()
 
-// Схема валидации
 const createClassSchema = z.object({
   name: z.string().min(1).max(100),
   schoolName: z.string().max(200).optional(),
 })
 
-// Генерация invite code
 function generateInviteCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   let code = ''
@@ -21,10 +19,9 @@ function generateInviteCode(): string {
   return code
 }
 
-// GET /api/classes - получить все классы пользователя
 router.get('/', async (req, res) => {
   try {
-    const userId = req.headers['x-user-id'] as string || 'user-1' // TODO: из JWT
+    const userId = req.headers['x-user-id'] as string || 'user-1'
     
     const memberships = await prisma.classMember.findMany({
       where: { userId },
@@ -50,7 +47,6 @@ router.get('/', async (req, res) => {
   }
 })
 
-// GET /api/classes/:id - получить класс по ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -77,7 +73,6 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// POST /api/classes - создать класс
 router.post('/', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] as string || 'user-1'
@@ -111,7 +106,6 @@ router.post('/', async (req, res) => {
   }
 })
 
-// POST /api/classes/join - присоединиться по коду
 router.post('/join', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] as string || 'user-1'
@@ -125,7 +119,6 @@ router.post('/join', async (req, res) => {
       return res.status(404).json({ error: 'Класс не найден' })
     }
     
-    // Проверяем, не состоит ли уже
     const existing = await prisma.classMember.findUnique({
       where: {
         classId_userId: { classId: classData.id, userId }
@@ -151,13 +144,11 @@ router.post('/join', async (req, res) => {
   }
 })
 
-// DELETE /api/classes/:id - удалить класс
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params
     const userId = req.headers['x-user-id'] as string || 'user-1'
     
-    // Проверяем права
     const membership = await prisma.classMember.findUnique({
       where: { classId_userId: { classId: id, userId } }
     })

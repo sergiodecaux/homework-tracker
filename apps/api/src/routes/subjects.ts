@@ -12,7 +12,6 @@ const createSubjectSchema = z.object({
   color: z.string().optional().default('#3B82F6'),
 })
 
-// GET /api/subjects?classId=xxx
 router.get('/', async (req, res) => {
   try {
     const { classId } = req.query
@@ -33,13 +32,11 @@ router.get('/', async (req, res) => {
   }
 })
 
-// POST /api/subjects
 router.post('/', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] as string || 'user-1'
     const data = createSubjectSchema.parse(req.body)
     
-    // Проверяем права
     const membership = await prisma.classMember.findUnique({
       where: { classId_userId: { classId: data.classId, userId } }
     })
@@ -48,7 +45,6 @@ router.post('/', async (req, res) => {
       return res.status(403).json({ error: 'No permission' })
     }
     
-    // Получаем максимальный sortOrder
     const maxSort = await prisma.subject.aggregate({
       where: { classId: data.classId },
       _max: { sortOrder: true }
@@ -76,7 +72,6 @@ router.post('/', async (req, res) => {
   }
 })
 
-// PUT /api/subjects/:id
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -94,7 +89,6 @@ router.put('/:id', async (req, res) => {
   }
 })
 
-// DELETE /api/subjects/:id
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params

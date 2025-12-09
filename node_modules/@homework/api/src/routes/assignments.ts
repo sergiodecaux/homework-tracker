@@ -5,7 +5,6 @@ import { z } from 'zod'
 const router = Router()
 const prisma = new PrismaClient()
 
-// Схема валидации
 const createAssignmentSchema = z.object({
   classId: z.string(),
   subjectId: z.string(),
@@ -18,7 +17,6 @@ const createAssignmentSchema = z.object({
   })).optional().default([]),
 })
 
-// GET /api/assignments - получить задания
 router.get('/', async (req, res) => {
   try {
     const { classId, date, from, to } = req.query
@@ -53,7 +51,6 @@ router.get('/', async (req, res) => {
       ]
     })
     
-    // Добавляем флаг isCompleted
     const result = assignments.map(a => ({
       ...a,
       dueDate: a.dueDate.toISOString().split('T')[0],
@@ -67,13 +64,11 @@ router.get('/', async (req, res) => {
   }
 })
 
-// POST /api/assignments - создать задание
 router.post('/', async (req, res) => {
   try {
     const userId = req.headers['x-user-id'] as string || 'user-1'
     const data = createAssignmentSchema.parse(req.body)
     
-    // Проверяем права (editor или owner)
     const membership = await prisma.classMember.findUnique({
       where: { classId_userId: { classId: data.classId, userId } }
     })
@@ -114,7 +109,6 @@ router.post('/', async (req, res) => {
   }
 })
 
-// PUT /api/assignments/:id - обновить задание
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -130,7 +124,6 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Assignment not found' })
     }
     
-    // Проверяем права
     const membership = await prisma.classMember.findUnique({
       where: { classId_userId: { classId: assignment.classId, userId } }
     })
@@ -160,7 +153,6 @@ router.put('/:id', async (req, res) => {
   }
 })
 
-// DELETE /api/assignments/:id - удалить задание
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params
@@ -172,7 +164,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Assignment not found' })
     }
     
-    // Проверяем права
     const membership = await prisma.classMember.findUnique({
       where: { classId_userId: { classId: assignment.classId, userId } }
     })
@@ -190,7 +181,6 @@ router.delete('/:id', async (req, res) => {
   }
 })
 
-// POST /api/assignments/:id/complete - отметить выполненным
 router.post('/:id/complete', async (req, res) => {
   try {
     const { id } = req.params

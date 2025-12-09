@@ -18,7 +18,6 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
     const authHeader = req.headers.authorization
     
     if (!authHeader?.startsWith('Bearer ')) {
-      // В dev режиме пропускаем без токена
       if (process.env.NODE_ENV === 'development') {
         req.userId = 'user-1'
         return next()
