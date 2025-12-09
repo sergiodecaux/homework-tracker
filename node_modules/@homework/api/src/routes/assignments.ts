@@ -7,8 +7,8 @@ const prisma = new PrismaClient()
 
 // Схема валидации
 const createAssignmentSchema = z.object({
-  classId: z.string().uuid(),
-  subjectId: z.string().uuid(),
+  classId: z.string(),
+  subjectId: z.string(),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   content: z.string().min(1).max(2000),
   attachments: z.array(z.object({
@@ -84,12 +84,18 @@ router.post('/', async (req, res) => {
     
     const assignment = await prisma.assignment.create({
       data: {
-        classId: data.classId,
-        subjectId: data.subjectId,
         dueDate: new Date(data.dueDate),
         content: data.content,
-        attachments: data.attachments,
-        createdBy: userId,
+        attachments: JSON.stringify(data.attachments),
+        class: {
+          connect: { id: data.classId }
+        },
+        subject: {
+          connect: { id: data.subjectId }
+        },
+        creator: {
+          connect: { id: userId }
+        }
       },
       include: { subject: true }
     })
@@ -133,13 +139,14 @@ router.put('/:id', async (req, res) => {
       return res.status(403).json({ error: 'No permission' })
     }
     
+    const updateData: any = {}
+    if (content) updateData.content = content
+    if (dueDate) updateData.dueDate = new Date(dueDate)
+    if (subjectId) updateData.subject = { connect: { id: subjectId } }
+    
     const updated = await prisma.assignment.update({
       where: { id },
-      data: {
-        content: content || assignment.content,
-        dueDate: dueDate ? new Date(dueDate) : assignment.dueDate,
-        subjectId: subjectId || assignment.subjectId,
-      },
+      data: updateData,
       include: { subject: true }
     })
     

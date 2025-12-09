@@ -6,10 +6,10 @@ const router = Router()
 const prisma = new PrismaClient()
 
 const createSubjectSchema = z.object({
-  classId: z.string().uuid(),
+  classId: z.string(),
   name: z.string().min(1).max(100),
   emoji: z.string().max(10).optional().default('📚'),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional().default('#3B82F6'),
+  color: z.string().optional().default('#3B82F6'),
 })
 
 // GET /api/subjects?classId=xxx
@@ -56,8 +56,13 @@ router.post('/', async (req, res) => {
     
     const subject = await prisma.subject.create({
       data: {
-        ...data,
+        name: data.name,
+        emoji: data.emoji || '📚',
+        color: data.color || '#3B82F6',
         sortOrder: (maxSort._max.sortOrder || 0) + 1,
+        class: {
+          connect: { id: data.classId }
+        }
       }
     })
     
