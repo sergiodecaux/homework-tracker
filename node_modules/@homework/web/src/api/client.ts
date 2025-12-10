@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3001/api'
+const API_URL = import.meta.env.PROD 
+  ? 'https://homework-api-4cps.onrender.com/api'
+  : 'http://localhost:3001/api'
 
 async function request<T>(
   endpoint: string,
@@ -26,7 +28,6 @@ async function request<T>(
 }
 
 export const api = {
-  // Классы
   getClasses: () => request<any[]>('/classes'),
   
   getClass: (id: string) => request<any>(`/classes/${id}`),
@@ -43,7 +44,6 @@ export const api = {
       body: JSON.stringify({ inviteCode }),
     }),
   
-  // Предметы
   getSubjects: (classId: string) =>
     request<any[]>(`/subjects?classId=${classId}`),
   
@@ -58,7 +58,6 @@ export const api = {
       method: 'DELETE',
     }),
   
-  // Задания
   getAssignments: (params: { classId?: string; date?: string }) => {
     const query = new URLSearchParams()
     if (params.classId) query.set('classId', params.classId)
