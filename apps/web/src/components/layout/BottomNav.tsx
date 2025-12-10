@@ -10,8 +10,14 @@ const navItems = [
 ]
 
 export function BottomNav() {
+  // Проверяем, запущено ли в Telegram
+  const isTelegram = !!(window as any).Telegram?.WebApp
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-tg-bg border-t border-gray-100 pb-safe">
+    <nav
+      className="fixed bottom-0 left-0 right-0 bg-tg-bg border-t border-gray-100"
+      style={{ paddingBottom: isTelegram ? 'env(safe-area-inset-bottom, 8px)' : '0' }}
+    >
       <div className="flex items-center justify-around h-16">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink

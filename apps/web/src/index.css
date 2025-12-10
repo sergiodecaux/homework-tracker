@@ -10,6 +10,7 @@
   --tg-theme-link-color: #2481cc;
   --tg-theme-button-color: #2481cc;
   --tg-theme-button-text-color: #ffffff;
+  --tg-viewport-stable-height: 100vh;
 }
 
 * {
@@ -23,6 +24,7 @@ body {
   background-color: var(--tg-theme-bg-color);
   color: var(--tg-theme-text-color);
   min-height: 100vh;
+  min-height: var(--tg-viewport-stable-height);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,4 +39,13 @@ html {
 
 input, textarea, select {
   font-size: 16px;
+}
+
+/* Безопасные отступы для Telegram */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }

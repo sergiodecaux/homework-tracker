@@ -7,16 +7,22 @@ interface PageContainerProps {
   withBottomNav?: boolean
 }
 
-export function PageContainer({ 
-  children, 
+export function PageContainer({
+  children,
   className,
-  withBottomNav = true 
+  withBottomNav = true
 }: PageContainerProps) {
+  // Проверяем, запущено ли в Telegram
+  const isTelegram = !!(window as any).Telegram?.WebApp
+
   return (
     <main
       className={clsx(
         'min-h-screen bg-tg-secondary-bg',
-        { 'pb-20': withBottomNav },
+        {
+          'pb-20': withBottomNav,
+          'pb-24': withBottomNav && isTelegram, // Больше отступ в Telegram
+        },
         className
       )}
     >
