@@ -12,12 +12,16 @@ export function Card({ children, className, onClick, hoverable = false }: CardPr
   return (
     <div
       className={clsx(
-        'bg-white rounded-2xl p-4 shadow-sm border border-gray-100',
+        'rounded-2xl p-4 shadow-sm',
         {
-          'cursor-pointer hover:shadow-md transition-shadow active:scale-[0.99]': hoverable || onClick,
+          'cursor-pointer active:scale-[0.99] transition-transform': hoverable || onClick,
         },
         className
       )}
+      style={{
+        backgroundColor: 'var(--tg-theme-bg-color)',
+        color: 'var(--tg-theme-text-color)',
+      }}
       onClick={onClick}
     >
       {children}
