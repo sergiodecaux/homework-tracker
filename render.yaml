@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: homework-api
+    runtime: node
+    buildCommand: "cd apps/api && npm install && npm run build"
+    startCommand: "cd apps/api && npm start"
+    envVars:
+      - key: DATABASE_URL
+        value: file:./prisma/dev.db
+      - key: JWT_SECRET
+        value: homework-tracker-secret-prod-2024
+      - key: NODE_ENV
+        value: production
